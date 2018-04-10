@@ -8,7 +8,8 @@
 #!/bin/bash
 DATE=`date '+%m-%d-%y'`
 FILENAME="/home/jay/Documents/Journal/jar/$1.txt" # Name of herb
-JOURNALNAME="/home/jay/Documents/Journal/burn.txt" # Name of journal to log burns to in order to keep empirical data tight
+JOURNALNAME="/home/jay/Documents/Journal/burn.txt" # Name of journal to log burns to in order to 
+keep empirical data tight
 if [ -f $FILENAME ]; then
   printf 'Herbs in container '
   echo $FILENAME
@@ -20,7 +21,20 @@ fi
 if [ $# -eq 1 ]; then
   FILENAME="/home/jay/Documents/Journal/jar/$1.txt"
   cat $FILENAME
-elif [ $# -eq 4 ]; then # Essentially what this spaghetti does is checks which herb we are referring to and adds a certain quantity
+  FILENAME="/home/jay/Documents/Journal/jar/$1.txt"
+  readarray lines < $FILENAME
+  TOTAL=0;
+  for line in "${lines[@]}" # Calculate total contents weight
+  do
+    arr=($line)
+    t=`echo $TOTAL + ${arr[1]} | bc`
+    TOTAL=$t
+  done
+  printf "Total weight is "
+  printf $TOTAL
+  echo " grams"
+elif [ $# -eq 4 ]; then # Essentially what this spaghetti does is checks which herb we are 
+referring to and adds a certain quantity
   FILENAME="/home/jay/Documents/Journal/jar/$1.txt"
   readarray lines < $FILENAME
   COUNTER=0;
@@ -40,7 +54,6 @@ elif [ $# -eq 4 ]; then # Essentially what this spaghetti does is checks which h
   for line in "${lines[@]}"
   do
     echo $line >> $FILENAME
-    echo $line
   done
   if [ $FOUND -eq 0 ]; then # If this herb wasnt found, add it to the file
     printf $3 >> $FILENAME
@@ -56,9 +69,7 @@ elif [ $# -eq 3 ]; then # This part of the code lets you remove some of the herb
     arr=($line)
     t=`echo $TOTAL + ${arr[1]} | bc`
     TOTAL=$t
-    #lines[COUNTER]="${arr[0]} $quantity";
   done
-  #echo $TOTAL
   COUNTER=0;
   for line in "${lines[@]}" # Calculate remaining contents wait accounting for $3
   do
@@ -66,12 +77,13 @@ elif [ $# -eq 3 ]; then # This part of the code lets you remove some of the herb
     x=${arr[1]}
     q=`echo "scale=3 ; $3 / $TOTAL" | bc`
     quantity=$q
-    n=`echo "$q * $x" | bc -l` # Quantity removed, save this for future reference w/details (science)
-    printf $1 >> $JOURNALNAME
+    n=`echo "$q * $x" | bc -l` # Quantity removed, save this for future reference w/details 
+(science)
+    printf $1 >> $JOURNALNAME # Name of jar
     printf " " >> $JOURNALNAME
-    printf ${arr[0]} >> $JOURNALNAME
+    printf ${arr[0]} >> $JOURNALNAME # Name of ingredient
     printf " " >> $JOURNALNAME
-    echo "$n" >> $JOURNALNAME
+    echo "$n" >> $JOURNALNAME # Quantity removed
     nw=`echo "${arr[1]} - $n" | bc -l`
     lines[COUNTER]="${arr[0]} $nw";
     let "COUNTER += 1"
@@ -84,9 +96,7 @@ elif [ $# -eq 3 ]; then # This part of the code lets you remove some of the herb
     q=`echo $x'>'0 | bc -l`
     if [ "$q" -eq 1 ]; then
       echo $line >> $FILENAME
-      #echo $line
     fi
   done
-  cat $FILENAME
 fi
 
